@@ -195,7 +195,6 @@ region                     = us-west-2
 			}
 
 			g := &Generator{
-				Output:              &output,
 				Sources:             []Source{testSource{Profiles: tt.profiles}},
 				Config:              cfg,
 				NoCredentialProcess: tt.noCredentialProcess,
@@ -206,6 +205,12 @@ region                     = us-west-2
 			if err := g.Generate(ctx); (err != nil) != tt.wantErr {
 				t.Errorf("Generator.Generate() error = %v, wantErr %v", err, tt.wantErr)
 			}
+
+			_, err = cfg.WriteTo(&output)
+			if err != nil {
+				t.Fatal(err)
+			}
+
 			// ignore leading/trailing whitespace so it's easier to format the 'want' section in the test table
 			got := strings.TrimSpace(output.String())
 			want := strings.TrimSpace(tt.want)

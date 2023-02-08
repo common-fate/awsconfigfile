@@ -3,7 +3,6 @@ package awsconfigfile
 import (
 	"context"
 	"fmt"
-	"io"
 	"regexp"
 	"strings"
 	"sync"
@@ -21,8 +20,6 @@ type Source interface {
 // It reads profiles from sources and merges them with
 // an existing ini config file.
 type Generator struct {
-	// Output to write to
-	Output              io.Writer
 	Sources             []Source
 	Config              *ini.File
 	NoCredentialProcess bool
@@ -97,9 +94,5 @@ func (g *Generator) Generate(ctx context.Context) error {
 		Prefix:              g.Prefix,
 		Prune:               g.Prune,
 	})
-	if err != nil {
-		return err
-	}
-	_, err = g.Config.WriteTo(g.Output)
 	return err
 }

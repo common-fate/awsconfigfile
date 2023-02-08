@@ -12,6 +12,7 @@ import (
 	"gopkg.in/ini.v1"
 )
 
+// Sources return AWS profiles to be combined into an AWS config file.
 type Source interface {
 	GetProfiles(ctx context.Context) ([]SSOProfile, error)
 }
@@ -27,6 +28,11 @@ type Generator struct {
 	NoCredentialProcess bool
 	ProfileNameTemplate string
 	Prefix              string
+}
+
+// AddSource adds a new source to load profiles from to the generator.
+func (g *Generator) AddSource(source Source) {
+	g.Sources = append(g.Sources, source)
 }
 
 const profileSectionIllegalChars = ` \][;'"`

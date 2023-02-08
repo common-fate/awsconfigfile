@@ -153,6 +153,9 @@ region                     = us-west-2
 			config: `
 [profile should_be_removed]
 common_fate_generated_from = aws-sso
+
+[profile should_be_kept]
+test = 1
 			`,
 			profiles: []SSOProfile{
 				{
@@ -167,6 +170,9 @@ common_fate_generated_from = aws-sso
 			},
 			prune: true,
 			want: `
+[profile should_be_kept]
+test = 1
+
 [profile prod/DevRole]
 granted_sso_start_url      = https://example.awsapps.com/start
 granted_sso_region         = ap-southeast-2

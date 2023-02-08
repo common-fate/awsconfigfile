@@ -32,11 +32,12 @@ test = 1
 `),
 				Profiles: []SSOProfile{
 					{
-						StartUrl:      "https://example.com",
+						SSOStartURL:   "https://example.com",
 						SSORegion:     "ap-southeast-2",
-						AccountId:     "123456789012",
+						AccountID:     "123456789012",
 						AccountName:   "testing",
 						RoleName:      "DevRole",
+						GeneratedFrom: "aws-sso",
 						CommonFateURL: "https://commonfate.example.com",
 					},
 				},
@@ -45,12 +46,73 @@ test = 1
 test = 1
 
 [profile testing/DevRole]
-granted_sso_start_url    = https://example.com
-granted_sso_region       = ap-southeast-2
-granted_sso_account_id   = 123456789012
-granted_sso_role_name    = DevRole
-generated_by_common_fate = true
-credential_process       = granted credential-process --profile testing/DevRole --url https://commonfate.example.com
+granted_sso_start_url      = https://example.com
+granted_sso_region         = ap-southeast-2
+granted_sso_account_id     = 123456789012
+granted_sso_role_name      = DevRole
+common_fate_generated_from = aws-sso
+credential_process         = granted credential-process --profile testing/DevRole --url https://commonfate.example.com
+`,
+		},
+		{
+			name: "ok with no credential process",
+			args: MergeOpts{
+				Config: parseIni(t, `
+[profile example]
+test = 1
+`),
+				NoCredentialProcess: true,
+				Profiles: []SSOProfile{
+					{
+						SSOStartURL:   "https://example.com",
+						SSORegion:     "ap-southeast-2",
+						AccountID:     "123456789012",
+						AccountName:   "testing",
+						RoleName:      "DevRole",
+						GeneratedFrom: "aws-sso",
+						CommonFateURL: "https://commonfate.example.com",
+					},
+				},
+			},
+			want: `[profile example]
+test = 1
+
+[profile testing/DevRole]
+sso_start_url              = https://example.com
+sso_region                 = ap-southeast-2
+sso_account_id             = 123456789012
+common_fate_generated_from = aws-sso
+sso_role_name              = DevRole
+`,
+		},
+		{
+			name: "no common fate url",
+			args: MergeOpts{
+				Config: parseIni(t, `
+[profile example]
+test = 1
+`),
+				Profiles: []SSOProfile{
+					{
+						SSOStartURL:   "https://example.com",
+						SSORegion:     "ap-southeast-2",
+						AccountID:     "123456789012",
+						AccountName:   "testing",
+						RoleName:      "DevRole",
+						GeneratedFrom: "aws-sso",
+					},
+				},
+			},
+			want: `[profile example]
+test = 1
+
+[profile testing/DevRole]
+granted_sso_start_url      = https://example.com
+granted_sso_region         = ap-southeast-2
+granted_sso_account_id     = 123456789012
+granted_sso_role_name      = DevRole
+common_fate_generated_from = aws-sso
+credential_process         = granted credential-process --profile testing/DevRole
 `,
 		},
 	}

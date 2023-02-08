@@ -12,13 +12,19 @@ import (
 
 type SSOProfile struct {
 	// SSO details
-	StartUrl  string
-	SSORegion string
+
+	SSOStartURL string
+	SSORegion   string
+
 	// Account and role details
-	AccountId     string
+
+	AccountID     string
 	AccountName   string
 	RoleName      string
 	CommonFateURL string
+	// GeneratedFrom is the source that the profile
+	// was created from, such as 'commonfate' or 'aws-sso'
+	GeneratedFrom string
 }
 
 // ToIni converts a profile to a struct with `ini` tags
@@ -33,11 +39,11 @@ type SSOProfile struct {
 func (p SSOProfile) ToIni(profileName string, noCredentialProcess bool) any {
 	if noCredentialProcess {
 		return &regularProfile{
-			SSOStartURL:           p.StartUrl,
-			SSORegion:             p.SSORegion,
-			SSOAccountID:          p.AccountId,
-			SSORoleName:           p.RoleName,
-			GeneratedByCommonFate: "true",
+			SSOStartURL:             p.SSOStartURL,
+			SSORegion:               p.SSORegion,
+			SSOAccountID:            p.AccountID,
+			SSORoleName:             p.RoleName,
+			CommonFateGeneratedFrom: p.GeneratedFrom,
 		}
 	}
 
@@ -48,12 +54,12 @@ func (p SSOProfile) ToIni(profileName string, noCredentialProcess bool) any {
 	}
 
 	return &credentialProcessProfile{
-		SSOStartURL:           p.StartUrl,
-		SSORegion:             p.SSORegion,
-		SSOAccountID:          p.AccountId,
-		SSORoleName:           p.RoleName,
-		CredentialProcess:     credProcess,
-		GeneratedByCommonFate: "true",
+		SSOStartURL:             p.SSOStartURL,
+		SSORegion:               p.SSORegion,
+		SSOAccountID:            p.AccountID,
+		SSORoleName:             p.RoleName,
+		CredentialProcess:       credProcess,
+		CommonFateGeneratedFrom: p.GeneratedFrom,
 	}
 }
 
@@ -103,20 +109,20 @@ func Merge(opts MergeOpts) error {
 }
 
 type credentialProcessProfile struct {
-	SSOStartURL           string `ini:"granted_sso_start_url"`
-	SSORegion             string `ini:"granted_sso_region"`
-	SSOAccountID          string `ini:"granted_sso_account_id"`
-	SSORoleName           string `ini:"granted_sso_role_name"`
-	GeneratedByCommonFate string `ini:"generated_by_common_fate"`
-	CredentialProcess     string `ini:"credential_process"`
+	SSOStartURL             string `ini:"granted_sso_start_url"`
+	SSORegion               string `ini:"granted_sso_region"`
+	SSOAccountID            string `ini:"granted_sso_account_id"`
+	SSORoleName             string `ini:"granted_sso_role_name"`
+	CommonFateGeneratedFrom string `ini:"common_fate_generated_from"`
+	CredentialProcess       string `ini:"credential_process"`
 }
 
 type regularProfile struct {
-	SSOStartURL           string `ini:"sso_start_url"`
-	SSORegion             string `ini:"sso_region"`
-	SSOAccountID          string `ini:"sso_account_id"`
-	GeneratedByCommonFate string `ini:"generated_by_common_fate"`
-	SSORoleName           string `ini:"sso_role_name"`
+	SSOStartURL             string `ini:"sso_start_url"`
+	SSORegion               string `ini:"sso_region"`
+	SSOAccountID            string `ini:"sso_account_id"`
+	CommonFateGeneratedFrom string `ini:"common_fate_generated_from"`
+	SSORoleName             string `ini:"sso_role_name"`
 }
 
 func normalizeAccountName(accountName string) string {

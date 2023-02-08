@@ -17,7 +17,7 @@ type SSOProfile struct {
 	SSORegion   string
 
 	// Account and role details
-
+	Region        string
 	AccountID     string
 	AccountName   string
 	RoleName      string
@@ -44,6 +44,7 @@ func (p SSOProfile) ToIni(profileName string, noCredentialProcess bool) any {
 			SSOAccountID:            p.AccountID,
 			SSORoleName:             p.RoleName,
 			CommonFateGeneratedFrom: p.GeneratedFrom,
+			Region:                  p.Region,
 		}
 	}
 
@@ -60,6 +61,7 @@ func (p SSOProfile) ToIni(profileName string, noCredentialProcess bool) any {
 		SSORoleName:             p.RoleName,
 		CredentialProcess:       credProcess,
 		CommonFateGeneratedFrom: p.GeneratedFrom,
+		Region:                  p.Region,
 	}
 }
 
@@ -115,6 +117,7 @@ type credentialProcessProfile struct {
 	SSORoleName             string `ini:"granted_sso_role_name"`
 	CommonFateGeneratedFrom string `ini:"common_fate_generated_from"`
 	CredentialProcess       string `ini:"credential_process"`
+	Region                  string `ini:"region,omitempty"`
 }
 
 type regularProfile struct {
@@ -123,6 +126,7 @@ type regularProfile struct {
 	SSOAccountID            string `ini:"sso_account_id"`
 	CommonFateGeneratedFrom string `ini:"common_fate_generated_from"`
 	SSORoleName             string `ini:"sso_role_name"`
+	Region                  string `ini:"region,omitempty"`
 }
 
 func normalizeAccountName(accountName string) string {

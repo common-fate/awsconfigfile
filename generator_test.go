@@ -101,7 +101,7 @@ credential_process         = granted credential-process --profile myprefix-prod/
 			wantErr:             true,
 		},
 		{
-			name:                "valid template fails ;",
+			name:                "valid template",
 			sectionNameTemplate: "{{ .AccountName }}.hello",
 			profiles: []SSOProfile{
 				{
@@ -121,6 +121,30 @@ granted_sso_account_id     = 123456789012
 granted_sso_role_name      = DevRole
 common_fate_generated_from = aws-sso
 credential_process         = granted credential-process --profile prod.hello
+`,
+		},
+		{
+			name: "ok with region",
+			profiles: []SSOProfile{
+				{
+					SSOStartURL:   "https://example.awsapps.com/start",
+					SSORegion:     "ap-southeast-2",
+					AccountID:     "123456789012",
+					AccountName:   "prod",
+					RoleName:      "DevRole",
+					GeneratedFrom: "aws-sso",
+					Region:        "us-west-2",
+				},
+			},
+			want: `
+[profile prod/DevRole]
+granted_sso_start_url      = https://example.awsapps.com/start
+granted_sso_region         = ap-southeast-2
+granted_sso_account_id     = 123456789012
+granted_sso_role_name      = DevRole
+common_fate_generated_from = aws-sso
+credential_process         = granted credential-process --profile prod/DevRole
+region                     = us-west-2
 `,
 		},
 	}

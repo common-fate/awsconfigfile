@@ -28,6 +28,7 @@ type Generator struct {
 	NoCredentialProcess bool
 	ProfileNameTemplate string
 	Prefix              string
+	Prune               bool
 }
 
 // AddSource adds a new source to load profiles from to the generator.
@@ -94,6 +95,7 @@ func (g *Generator) Generate(ctx context.Context) error {
 		Profiles:            profiles,
 		NoCredentialProcess: g.NoCredentialProcess,
 		Prefix:              g.Prefix,
+		Prune:               g.Prune,
 	})
 	if err != nil {
 		return err

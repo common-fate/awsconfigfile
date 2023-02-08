@@ -2,6 +2,7 @@ package awsconfigfile
 
 import (
 	"bytes"
+	"strings"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -42,7 +43,8 @@ test = 1
 					},
 				},
 			},
-			want: `[profile example]
+			want: `
+[profile example]
 test = 1
 
 [profile testing/DevRole]
@@ -74,7 +76,8 @@ test = 1
 					},
 				},
 			},
-			want: `[profile example]
+			want: `
+[profile example]
 test = 1
 
 [profile testing/DevRole]
@@ -103,7 +106,8 @@ test = 1
 					},
 				},
 			},
-			want: `[profile example]
+			want: `
+[profile example]
 test = 1
 
 [profile testing/DevRole]
@@ -128,7 +132,11 @@ credential_process         = granted credential-process --profile testing/DevRol
 				t.Fatal(err)
 			}
 
-			assert.Equal(t, tt.want, b.String())
+			// ignore leading/trailing whitespace so it's easier to format the 'want' section in the test table
+			got := strings.TrimSpace(b.String())
+			want := strings.TrimSpace(tt.want)
+
+			assert.Equal(t, want, got)
 		})
 	}
 }

@@ -28,6 +28,7 @@ func TestGenerator_Generate(t *testing.T) {
 		noCredentialProcess bool
 		sectionNameTemplate string
 		prefix              string
+		prune               bool
 		want                string
 		wantErr             bool
 	}{
@@ -147,6 +148,35 @@ credential_process         = granted credential-process --profile prod/DevRole
 region                     = us-west-2
 `,
 		},
+		{
+			name: "ok with pruning",
+			config: `
+[profile should_be_removed]
+common_fate_generated_from = aws-sso
+			`,
+			profiles: []SSOProfile{
+				{
+					SSOStartURL:   "https://example.awsapps.com/start",
+					SSORegion:     "ap-southeast-2",
+					AccountID:     "123456789012",
+					AccountName:   "prod",
+					RoleName:      "DevRole",
+					GeneratedFrom: "aws-sso",
+					Region:        "us-west-2",
+				},
+			},
+			prune: true,
+			want: `
+[profile prod/DevRole]
+granted_sso_start_url      = https://example.awsapps.com/start
+granted_sso_region         = ap-southeast-2
+granted_sso_account_id     = 123456789012
+granted_sso_role_name      = DevRole
+common_fate_generated_from = aws-sso
+credential_process         = granted credential-process --profile prod/DevRole
+region                     = us-west-2
+`,
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -165,6 +195,7 @@ region                     = us-west-2
 				NoCredentialProcess: tt.noCredentialProcess,
 				ProfileNameTemplate: tt.sectionNameTemplate,
 				Prefix:              tt.prefix,
+				Prune:               true,
 			}
 			if err := g.Generate(ctx); (err != nil) != tt.wantErr {
 				t.Errorf("Generator.Generate() error = %v, wantErr %v", err, tt.wantErr)

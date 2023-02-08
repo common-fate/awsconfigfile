@@ -71,6 +71,7 @@ type MergeOpts struct {
 	Profiles            []SSOProfile
 	SectionNameTemplate string
 	NoCredentialProcess bool
+	Prune               bool
 }
 
 func Merge(opts MergeOpts) error {
@@ -81,6 +82,15 @@ func Merge(opts MergeOpts) error {
 	sectionNameTempl, err := template.New("").Parse(opts.SectionNameTemplate)
 	if err != nil {
 		return err
+	}
+
+	if opts.Prune {
+		// remove any config sections that have 'common_fate_generated_from' as a key
+		for _, sec := range opts.Config.Sections() {
+			if sec.HasKey("common_fate_generated_from") {
+				opts.Config.DeleteSection(sec.Name())
+			}
+		}
 	}
 
 	for _, ssoProfile := range opts.Profiles {

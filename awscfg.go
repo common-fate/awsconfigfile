@@ -87,7 +87,7 @@ func Merge(opts MergeOpts) error {
 	if opts.Prune {
 		// remove any config sections that have 'common_fate_generated_from' as a key
 		for _, sec := range opts.Config.Sections() {
-			if sec.HasKey("common_fate_generated_from") {
+			if sec.HasKey("common_fate_generated_from") && sec.Key("granted_sso_start_url").String() == opts.Profiles[0].SSOStartURL {
 				opts.Config.DeleteSection(sec.Name())
 			}
 		}

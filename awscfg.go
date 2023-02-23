@@ -71,7 +71,9 @@ type MergeOpts struct {
 	Profiles            []SSOProfile
 	SectionNameTemplate string
 	NoCredentialProcess bool
-	Prune               bool
+	// PruneStartURLs is a slice of AWS SSO start URLs which profiles are being generated for.
+	// Existing profiles with these start URLs will be removed if they aren't found in the Profiles field.
+	PruneStartURLs []string
 }
 
 func Merge(opts MergeOpts) error {
@@ -84,10 +86,20 @@ func Merge(opts MergeOpts) error {
 		return err
 	}
 
-	if opts.Prune {
-		// remove any config sections that have 'common_fate_generated_from' as a key
-		for _, sec := range opts.Config.Sections() {
-			if sec.HasKey("common_fate_generated_from") && sec.Key("granted_sso_start_url").String() == opts.Profiles[0].SSOStartURL {
+	// remove any config sections that have 'common_fate_generated_from' as a key
+	for _, sec := range opts.Config.Sections() {
+		var startURL string
+
+		if sec.HasKey("granted_sso_start_url") {
+			startURL = sec.Key("granted_sso_start_url").String()
+		} else if sec.HasKey("sso_start_url") {
+			startURL = sec.Key("sso_start_url").String()
+		}
+
+		for _, pruneURL := range opts.PruneStartURLs {
+			isGenerated := sec.HasKey("common_fate_generated_from") // true if the profile was created automatically.
+
+			if isGenerated && startURL == pruneURL {
 				opts.Config.DeleteSection(sec.Name())
 			}
 		}

@@ -28,7 +28,7 @@ func TestGenerator_Generate(t *testing.T) {
 		noCredentialProcess bool
 		sectionNameTemplate string
 		prefix              string
-		prune               bool
+		pruneStartURLs      []string
 		want                string
 		wantErr             bool
 	}{
@@ -153,6 +153,7 @@ region                     = us-west-2
 			config: `
 [profile should_be_removed]
 common_fate_generated_from = aws-sso
+granted_sso_start_url = https://deleteme.example.com
 
 [profile should_be_kept]
 test = 1
@@ -168,10 +169,48 @@ test = 1
 					Region:        "us-west-2",
 				},
 			},
-			prune: true,
+			pruneStartURLs: []string{"https://deleteme.example.com"},
 			want: `
 [profile should_be_kept]
 test = 1
+
+[profile prod/DevRole]
+granted_sso_start_url      = https://example.awsapps.com/start
+granted_sso_region         = ap-southeast-2
+granted_sso_account_id     = 123456789012
+granted_sso_role_name      = DevRole
+common_fate_generated_from = aws-sso
+credential_process         = granted credential-process --profile prod/DevRole
+region                     = us-west-2
+`,
+		},
+		{
+			name: "pruning one start url should not remove the other",
+			config: `
+[profile should_be_removed]
+common_fate_generated_from = aws-sso
+granted_sso_start_url = https://deleteme.example.com
+
+[profile should_be_kept]
+common_fate_generated_from = aws-sso
+granted_sso_start_url = https://somethingelse.example.com
+`,
+			profiles: []SSOProfile{
+				{
+					SSOStartURL:   "https://example.awsapps.com/start",
+					SSORegion:     "ap-southeast-2",
+					AccountID:     "123456789012",
+					AccountName:   "prod",
+					RoleName:      "DevRole",
+					GeneratedFrom: "aws-sso",
+					Region:        "us-west-2",
+				},
+			},
+			pruneStartURLs: []string{"https://deleteme.example.com"},
+			want: `
+[profile should_be_kept]
+common_fate_generated_from = aws-sso
+granted_sso_start_url      = https://somethingelse.example.com
 
 [profile prod/DevRole]
 granted_sso_start_url      = https://example.awsapps.com/start
@@ -200,7 +239,7 @@ region                     = us-west-2
 				NoCredentialProcess: tt.noCredentialProcess,
 				ProfileNameTemplate: tt.sectionNameTemplate,
 				Prefix:              tt.prefix,
-				Prune:               true,
+				PruneStartURLs:      tt.pruneStartURLs,
 			}
 			if err := g.Generate(ctx); (err != nil) != tt.wantErr {
 				t.Errorf("Generator.Generate() error = %v, wantErr %v", err, tt.wantErr)

@@ -25,7 +25,9 @@ type Generator struct {
 	NoCredentialProcess bool
 	ProfileNameTemplate string
 	Prefix              string
-	Prune               bool
+	// PruneStartURLs is a slice of AWS SSO start URLs which profiles are being generated for.
+	// Existing profiles with these start URLs will be removed if they aren't found in the Profiles field.
+	PruneStartURLs []string
 }
 
 // AddSource adds a new source to load profiles from to the generator.
@@ -92,7 +94,7 @@ func (g *Generator) Generate(ctx context.Context) error {
 		Profiles:            profiles,
 		NoCredentialProcess: g.NoCredentialProcess,
 		Prefix:              g.Prefix,
-		Prune:               g.Prune,
+		PruneStartURLs:      g.PruneStartURLs,
 	})
 	return err
 }

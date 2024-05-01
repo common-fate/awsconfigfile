@@ -119,6 +119,39 @@ common_fate_generated_from = aws-sso
 credential_process         = granted credential-process --profile testing/DevRole
 `,
 		},
+		{
+			name: "ok with sprig formatting",
+			args: MergeOpts{
+				Config: parseIni(t, `
+[profile example]
+test = 1
+`),
+				SectionNameTemplate: "{{ replace ` ` `-` .AccountName | lower }}/{{ .RoleName }}",
+				Profiles: []SSOProfile{
+					{
+						SSOStartURL:   "https://example.com",
+						SSORegion:     "ap-southeast-2",
+						AccountID:     "123456789012",
+						AccountName:   "Testing Title Case With Space",
+						RoleName:      "DevRole",
+						GeneratedFrom: "aws-sso",
+						CommonFateURL: "https://commonfate.example.com",
+					},
+				},
+			},
+			want: `
+[profile example]
+test = 1
+
+[profile testing-title-case-with-space/DevRole]
+granted_sso_start_url      = https://example.com
+granted_sso_region         = ap-southeast-2
+granted_sso_account_id     = 123456789012
+granted_sso_role_name      = DevRole
+common_fate_generated_from = aws-sso
+credential_process         = granted credential-process --profile testing-title-case-with-space/DevRole --url https://commonfate.example.com
+`,
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {

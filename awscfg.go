@@ -7,6 +7,7 @@ import (
 	"strings"
 	"text/template"
 
+	"github.com/Masterminds/sprig/v3"
 	"gopkg.in/ini.v1"
 )
 
@@ -81,7 +82,8 @@ func Merge(opts MergeOpts) error {
 		opts.SectionNameTemplate = "{{ .AccountName }}/{{ .RoleName }}"
 	}
 
-	sectionNameTempl, err := template.New("").Parse(opts.SectionNameTemplate)
+	funcMap := sprig.TxtFuncMap()
+	sectionNameTempl, err := template.New("").Funcs(funcMap).Parse(opts.SectionNameTemplate)
 	if err != nil {
 		return err
 	}

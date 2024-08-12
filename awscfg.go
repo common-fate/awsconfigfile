@@ -83,10 +83,11 @@ func Merge(opts MergeOpts) error {
 		opts.SectionNameTemplate = "{{ .AccountName }}/{{ .RoleName }}"
 	}
 
+	// Sort profiles by CombinedName (AccountName/RoleName)
 	sort.SliceStable(opts.Profiles, func(i, j int) bool {
-		profileNameI := opts.Prefix + opts.Profiles[i].RoleName
-		profileNameJ := opts.Prefix + opts.Profiles[j].RoleName
-		return profileNameI < profileNameJ
+		combinedNameI := opts.Profiles[i].AccountName + "/" + opts.Profiles[i].RoleName
+		combinedNameJ := opts.Profiles[j].AccountName + "/" + opts.Profiles[j].RoleName
+		return combinedNameI < combinedNameJ
 	})
 
 	funcMap := sprig.TxtFuncMap()

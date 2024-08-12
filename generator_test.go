@@ -222,6 +222,48 @@ credential_process         = granted credential-process --profile prod/DevRole
 region                     = us-west-2
 `,
 		},
+		{
+			name: "sso profiles sorted alphabetically",
+			profiles: []SSOProfile{
+				{
+					SSOStartURL:   "https://example.awsapps.com/start",
+					SSORegion:     "ap-southeast-2",
+					AccountID:     "123456789012",
+					AccountName:   "prod",
+					RoleName:      "DevRoleTwo",
+					GeneratedFrom: "aws-sso",
+					Region:        "us-west-2",
+				},
+				{
+					SSOStartURL:   "https://example.awsapps.com/start",
+					SSORegion:     "ap-southeast-2",
+					AccountID:     "123456789012",
+					AccountName:   "prod",
+					RoleName:      "DevRoleOne",
+					GeneratedFrom: "aws-sso",
+					Region:        "us-west-2",
+				},
+			},
+			want: `
+[profile prod/DevRoleOne]
+granted_sso_start_url      = https://example.awsapps.com/start
+granted_sso_region         = ap-southeast-2
+granted_sso_account_id     = 123456789012
+granted_sso_role_name      = DevRoleOne
+common_fate_generated_from = aws-sso
+credential_process         = granted credential-process --profile prod/DevRoleOne
+region                     = us-west-2
+
+[profile prod/DevRoleTwo]
+granted_sso_start_url      = https://example.awsapps.com/start
+granted_sso_region         = ap-southeast-2
+granted_sso_account_id     = 123456789012
+granted_sso_role_name      = DevRoleTwo
+common_fate_generated_from = aws-sso
+credential_process         = granted credential-process --profile prod/DevRoleTwo
+region                     = us-west-2
+`,
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {

@@ -4,6 +4,7 @@ package awsconfigfile
 
 import (
 	"bytes"
+	"sort"
 	"strings"
 	"text/template"
 
@@ -81,6 +82,12 @@ func Merge(opts MergeOpts) error {
 	if opts.SectionNameTemplate == "" {
 		opts.SectionNameTemplate = "{{ .AccountName }}/{{ .RoleName }}"
 	}
+
+	sort.SliceStable(opts.Profiles, func(i, j int) bool {
+		profileNameI := opts.Prefix + opts.Profiles[i].RoleName
+		profileNameJ := opts.Prefix + opts.Profiles[j].RoleName
+		return profileNameI < profileNameJ
+	})
 
 	funcMap := sprig.TxtFuncMap()
 	sectionNameTempl, err := template.New("").Funcs(funcMap).Parse(opts.SectionNameTemplate)

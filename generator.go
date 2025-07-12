@@ -28,6 +28,11 @@ type Generator struct {
 	// PruneStartURLs is a slice of AWS SSO start URLs which profiles are being generated for.
 	// Existing profiles with these start URLs will be removed if they aren't found in the Profiles field.
 	PruneStartURLs []string
+	SessionName    string
+	SSOScopes      []string
+	PreferRoles    []string
+	Verbose 			bool
+	DefaultRegion string
 }
 
 // AddSource adds a new source to load profiles from to the generator.
@@ -95,6 +100,11 @@ func (g *Generator) Generate(ctx context.Context) error {
 		NoCredentialProcess: g.NoCredentialProcess,
 		Prefix:              g.Prefix,
 		PruneStartURLs:      g.PruneStartURLs,
+		SessionName:         g.SessionName,
+		SSOScopes: 				   g.SSOScopes,
+		PreferRoles:         g.PreferRoles,
+		Verbose:             g.Verbose,
+		DefaultRegion:       g.DefaultRegion,
 	})
 	return err
 }

@@ -32,10 +32,10 @@ func TestMerge(t *testing.T) {
 test = 1
 `),
 				Profiles: []SSOProfile{
-					{
+					&AccountProfile{
 						SSOStartURL:   "https://example.com",
-						SSORegion:     "ap-southeast-2",
-						AccountID:     "123456789012",
+						SSORegion:        "ap-southeast-2",
+						AccountID:  "123456789012",
 						AccountName:   "testing",
 						RoleName:      "DevRole",
 						GeneratedFrom: "aws-sso",
@@ -65,12 +65,20 @@ test = 1
 `),
 				NoCredentialProcess: true,
 				Profiles: []SSOProfile{
-					{
+					&SSOSession{
 						SSOStartURL:   "https://example.com",
-						SSORegion:     "ap-southeast-2",
-						AccountID:     "123456789012",
+						SSOSessionName: "example-session",
+						SSORegistrationScopes: "example-scope",
+						SSORegion: "ap-southeast-2",
+						GeneratedFrom: "aws-sso",
+					},
+					&AccountProfile{
+						SSOSessionName: "example-session",
+						SSOStartURL:   "https://example.com",
+						Region:        "ap-southeast-2",
+						AccountID:  "123456789012",
 						AccountName:   "testing",
-						RoleName:      "DevRole",
+						RoleName:   "DevRole",
 						GeneratedFrom: "aws-sso",
 						CommonFateURL: "https://commonfate.example.com",
 					},
@@ -80,12 +88,18 @@ test = 1
 [profile example]
 test = 1
 
-[profile testing/DevRole]
+[sso-session example-session]
 sso_start_url              = https://example.com
+sso_registration_scopes    = example-scope
 sso_region                 = ap-southeast-2
+common_fate_generated_from = aws-sso
+
+[profile testing/DevRole]
+sso_session                = example-session
 sso_account_id             = 123456789012
 common_fate_generated_from = aws-sso
 sso_role_name              = DevRole
+region                     = ap-southeast-2
 `,
 		},
 		{
@@ -96,12 +110,12 @@ sso_role_name              = DevRole
 test = 1
 `),
 				Profiles: []SSOProfile{
-					{
+					&AccountProfile{
 						SSOStartURL:   "https://example.com",
-						SSORegion:     "ap-southeast-2",
-						AccountID:     "123456789012",
+						SSORegion:        "ap-southeast-2",
+						AccountID:  "123456789012",
 						AccountName:   "testing",
-						RoleName:      "DevRole",
+						RoleName:   "DevRole",
 						GeneratedFrom: "aws-sso",
 					},
 				},
@@ -128,12 +142,12 @@ test = 1
 `),
 				SectionNameTemplate: "{{ replace ` ` `-` .AccountName | lower }}/{{ .RoleName }}",
 				Profiles: []SSOProfile{
-					{
+					&AccountProfile{
 						SSOStartURL:   "https://example.com",
-						SSORegion:     "ap-southeast-2",
-						AccountID:     "123456789012",
+						SSORegion:        "ap-southeast-2",
+						AccountID:  "123456789012",
 						AccountName:   "Testing Title Case With Space",
-						RoleName:      "DevRole",
+						RoleName:   "DevRole",
 						GeneratedFrom: "aws-sso",
 						CommonFateURL: "https://commonfate.example.com",
 					},
@@ -157,32 +171,32 @@ credential_process         = granted credential-process --profile testing-title-
 			args: MergeOpts{
 				Config: parseIni(t, ""),
 				Profiles: []SSOProfile{
-					{
+					&AccountProfile{
 						SSOStartURL:   "https://example.awsapps.com/start",
-						SSORegion:     "ap-southeast-2",
-						AccountID:     "123456789012",
+						SSORegion:        "ap-southeast-2",
+						Region:				 "us-west-2",
+						AccountID:  "123456789012",
 						AccountName:   "account1",
-						RoleName:      "DevRoleTwo",
+						RoleName:   "DevRoleTwo",
 						GeneratedFrom: "aws-sso",
-						Region:        "us-west-2",
 					},
-					{
+					&AccountProfile{
 						SSOStartURL:   "https://example.awsapps.com/start",
-						SSORegion:     "ap-southeast-2",
-						AccountID:     "123456789012",
+						SSORegion:        "ap-southeast-2",
+						Region:				 "us-west-2",
+						AccountID:  "123456789012",
 						AccountName:   "account1",
-						RoleName:      "DevRoleOne",
+						RoleName:   "DevRoleOne",
 						GeneratedFrom: "aws-sso",
-						Region:        "us-west-2",
 					},
-					{
+					&AccountProfile{
 						SSOStartURL:   "https://example.awsapps.com/start",
-						SSORegion:     "ap-southeast-2",
-						AccountID:     "123456789012",
+						SSORegion:        "ap-southeast-2",
+						Region:				 "us-west-2",
+						AccountID:  "123456789012",
 						AccountName:   "account2",
-						RoleName:      "DevRoleOne",
+						RoleName:   "DevRoleOne",
 						GeneratedFrom: "aws-sso",
-						Region:        "us-west-2",
 					},
 				},
 			},
